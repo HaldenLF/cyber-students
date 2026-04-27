@@ -3,13 +3,10 @@ from json import dumps
 from tornado.escape import json_decode
 from tornado.ioloop import IOLoop
 from tornado.web import Application
-
 from api.handlers.registration import RegistrationHandler
 from api.handlers.sec_utils import get_encryption_key, check_passphrase, decrypt_data
-
 from .base import BaseTest
 
-import urllib.parse
 
 class RegistrationHandlerTest(BaseTest):
 
@@ -44,10 +41,10 @@ class RegistrationHandlerTest(BaseTest):
         # Check that password not stored in plaintext and salt and hash are stored in database
         self.assertIsNone(user.get('password'), 'Password should not be stored in plaintext')
         self.assertIsNotNone(user.get('password_hash'), 'Password hash should be stored')
-        self.assertIsNotNone(user.get('salt'), 'Salt should be stored')
+        self.assertIsNotNone(user.get('password_salt'), 'Salt should be stored')
         
         # Verify stored hashes match password
-        salt = user['salt']
+        salt = user['password_salt']
         stored_hash = user['password_hash']
         self.assertTrue(check_passphrase(password, salt, stored_hash), 'Stored hashes should match with password')
         # Check encryption

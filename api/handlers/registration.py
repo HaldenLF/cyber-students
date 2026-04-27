@@ -61,14 +61,14 @@ class RegistrationHandler(BaseHandler):
         
         # Encrypting data
         encryption_key = get_encryption_key()
-        encrypted_info = encrypt_data(personal_info_str, encryption_key)
+        encrypted_personal_data = encrypt_data(personal_info_str, encryption_key)
 
         # Store data
         await self.db.users.insert_one({
             'email': email,
             'password_hash': password_hash,
-            'salt': salt,
-            'encrypted_personal_info': encrypted_info,
+            'password_salt': salt,
+            'encrypted_personal_info': encrypted_personal_data,
             'token_hash': None,
             'expiresIn': None
         })
