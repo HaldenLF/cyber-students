@@ -1,27 +1,30 @@
 from datetime import datetime, timedelta, timezone
 from tornado.escape import json_decode
 from uuid import uuid4
-
+from .sec_utils import hash_token, check_passphrase
 from .base import BaseHandler
 
 class LoginHandler(BaseHandler):
 
     async def generate_token(self, email):
         token_uuid = uuid4().hex
+        token_hash = hash_token(token_uuid)
         expires_in = (datetime.now(timezone.utc) + timedelta(hours=2)).timestamp()
+        
 
-        token = {
-            'token': token_uuid,
-            'expiresIn': expires_in,
-        }
-
-        await self.db.users.update_one({
+        await self.db.users.update_one(
+            {
             'email': email
-        }, {
-            '$set': token
-        })
+            }, 
+            {
+            '$set': {
+                'token_hash': token_hash,
+                'expiresIn': expires_in,
+                }      
+            }   
+        )
 
-        return token
+        return token_uuid, expires_in
 
     async def post(self):
         try:
@@ -41,23 +44,25 @@ class LoginHandler(BaseHandler):
             return
 
         user = await self.db.users.find_one({
-          'email': email
+            'email': email
         }, {
-          'password': 1
+            'password_hash': 1,
+            'password_salt': 1
         })
 
         if user is None:
             self.send_error(403, message='The email address and password are invalid!')
             return
 
-        if user['password'] != password:
+        # Verify password hash
+        if not check_passphrase(password, user['password_salt'], user['password_hash']):            
             self.send_error(403, message='The email address and password are invalid!')
             return
 
-        token = await self.generate_token(email)
+        token_uuid, expires_in = await self.generate_token(email)
 
         self.set_status(200)
-        self.response['token'] = token['token']
-        self.response['expiresIn'] = token['expiresIn']
+        self.response['token'] = token_uuid
+        self.response['expiresIn'] = expires_in
 
         self.write_json()

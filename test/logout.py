@@ -1,11 +1,11 @@
+import os
 from json import dumps
 from tornado.escape import json_decode
 from tornado.httputil import HTTPHeaders
 from tornado.ioloop import IOLoop
 from tornado.web import Application
-
 from api.handlers.logout import LogoutHandler
-
+from api.handlers.sec_utils import hash_passphrase, hash_token
 from .base import BaseTest
 
 class LogoutHandlerTest(BaseTest):
@@ -16,18 +16,24 @@ class LogoutHandlerTest(BaseTest):
         super().setUpClass()
 
     async def register(self):
+        salt = os.urandom(32)
+        password_hash = hash_passphrase('testPassword', salt)
+        
         await self.get_app().db.users.insert_one({
             'email': self.email,
-            'password': self.password,
+            'password_hash': password_hash,
+            'salt': salt,
             'displayName': 'testDisplayName'
         })
-
+        
     async def login(self):
+        token_hash = hash_token(self.token)
         await self.get_app().db.users.update_one({
             'email': self.email
         }, {
-            '$set': { 'token': self.token, 'expiresIn': 2147483647 }
+            '$set': { 'token_hash': token_hash, 'expiresIn': 2147483647 }
         })
+
 
     def setUp(self):
         super().setUp()
@@ -35,7 +41,7 @@ class LogoutHandlerTest(BaseTest):
         self.email = 'test@test.com'
         self.password = 'testPassword'
         self.token = 'testToken'
-
+        
         IOLoop.current().run_sync(self.register)
         IOLoop.current().run_sync(self.login)
 
