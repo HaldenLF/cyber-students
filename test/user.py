@@ -1,11 +1,12 @@
-from json import dumps
+import os
+import json
 from tornado.escape import json_decode
 from tornado.httputil import HTTPHeaders
 from tornado.ioloop import IOLoop
 from tornado.web import Application
 
 from api.handlers.user import UserHandler
-
+from api.handlers.sec_utils import hash_passphrase,hash_token, encrypt_data, get_encryption_key
 from .base import BaseTest
 
 class UserHandlerTest(BaseTest):
@@ -16,17 +17,38 @@ class UserHandlerTest(BaseTest):
         super().setUpClass()
 
     async def register(self):
+        # hash before storing
+        salt = os.urandom(32)
+        password_hash = hash_passphrase(self.password, salt)
+        
+        # Encrypt details
+        key = get_encryption_key()
+        personal_data = {
+            'displayName': self.display_name,
+            'address': None,
+            'dateOfBirth': None,
+            'phoneNumber': None,
+            'disabilities': []
+        }
+        
+        personal_data_str = json.dumps(personal_data)
+        encrypted_personal_data = encrypt_data(personal_data_str, key)
+        
         await self.get_app().db.users.insert_one({
             'email': self.email,
-            'password': self.password,
-            'displayName': self.display_name
+            'password_hash': password_hash,
+            'salt': salt,
+            'encrypted_personal_data': encrypted_personal_data,
+            'token_hash': None,
+            'expiresIn': None
         })
 
     async def login(self):
+        token_hash = hash_token(self.token)
         await self.get_app().db.users.update_one({
             'email': self.email
         }, {
-            '$set': { 'token': self.token, 'expiresIn': 2147483647 }
+            '$set': { 'token_hash': token_hash, 'expiresIn': 2147483647 }
         })
 
     def setUp(self):
@@ -49,6 +71,7 @@ class UserHandlerTest(BaseTest):
         body_2 = json_decode(response.body)
         self.assertEqual(self.email, body_2['email'])
         self.assertEqual(self.display_name, body_2['displayName'])
+        self.assertIsNotNone(body_2.get('displayName'))
 
     def test_user_without_token(self):
         response = self.fetch('/user')

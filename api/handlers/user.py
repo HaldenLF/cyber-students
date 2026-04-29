@@ -1,5 +1,4 @@
 from tornado.web import authenticated
-
 from .auth import AuthHandler
 
 class UserHandler(AuthHandler):
@@ -9,4 +8,6 @@ class UserHandler(AuthHandler):
         self.set_status(200)
         self.response['email'] = self.current_user['email']
         self.response['displayName'] = self.current_user['display_name']
+        self.response['personalDetails'] = self.current_user.get('personal_data', {})
         self.write_json()
+
