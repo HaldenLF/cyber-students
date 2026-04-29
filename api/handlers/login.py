@@ -12,7 +12,7 @@ class LoginHandler(BaseHandler):
         expires_in = (datetime.now(timezone.utc) + timedelta(hours=2)).timestamp()
         
 
-        await self.db.users.update_one(
+        await self.db.users.find_one_and_update(
             {
             'email': email
             }, 

@@ -7,6 +7,7 @@ from test.registration import RegistrationHandlerTest
 from test.user import UserHandlerTest
 from test.welcome import WelcomeHandlerTest
 from test.sec_utils import TestSecUtils
+from test.auth import TestAuthHandler
 
 if __name__ == '__main__':
     logging.getLogger('tornado.access').disabled = True
