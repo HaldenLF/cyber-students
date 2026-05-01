@@ -52,7 +52,7 @@ class RegistrationHandlerTest(BaseTest):
         
         # Check decryption
         key = get_encryption_key()
-        decrypted_str = decrypt_data(user['encrypted_personal_info'], key)
+        decrypted_str = decrypt_data(user['encrypted_personal_data'], key)
         decrypted_data = json.loads(decrypted_str)
         self.assertEqual(decrypted_data['display_name'], display_name)
 
@@ -78,7 +78,7 @@ class RegistrationHandlerTest(BaseTest):
           )
         
         key = get_encryption_key()
-        decrypted_str = decrypt_data(user['encrypted_personal_info'], key)
+        decrypted_str = decrypt_data(user['encrypted_personal_data'], key)
         decrypted_data = json.loads(decrypted_str)
         self.assertEqual(decrypted_data['display_name'], email)
         
@@ -117,7 +117,7 @@ class RegistrationHandlerTest(BaseTest):
           )
         
         key = get_encryption_key()
-        decrypted_str = decrypt_data(user['encrypted_personal_info'], key)
+        decrypted_str = decrypt_data(user['encrypted_personal_data'], key)
         decrypted_data = json.loads(decrypted_str)
         self.assertEqual(decrypted_data['display_name'], 'testDisplayName')
         self.assertEqual(decrypted_data['address'], 'testAddress')
