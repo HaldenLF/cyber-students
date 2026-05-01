@@ -1,7 +1,7 @@
 import json
 from datetime import datetime, timezone
 from .base import BaseHandler
-from .sec_utils import hash_token, decrypt_data, get_encryption_key, check_token
+from .sec_utils import decrypt_data, get_encryption_key, hash_token
 
 class AuthHandler(BaseHandler):
 
@@ -27,7 +27,7 @@ class AuthHandler(BaseHandler):
             self.send_error(400, message='Invalid token format!')
             return
 
-        # search for user with valid token that is not expired
+        # Search for user with valid token, & check that is not expired
         current_time = datetime.now(timezone.utc).timestamp()
         auth_user = await self.db.users.find_one({
             'token_hash': token_hash,
@@ -43,7 +43,7 @@ class AuthHandler(BaseHandler):
             self.send_error(403, message='Invalid or expired token')
             return
         
-        # dcrypt personal data if user has valid token
+        # Decrypt personal data if user has valid token
         try:
             encryption_key = get_encryption_key()
             decrypted_str = decrypt_data(auth_user['encrypted_personal_data'], encryption_key)
