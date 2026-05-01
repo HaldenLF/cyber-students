@@ -68,7 +68,7 @@ class RegistrationHandler(BaseHandler):
             'email': email,
             'password_hash': password_hash,
             'password_salt': salt,
-            'encrypted_personal_info': encrypted_personal_data,
+            'encrypted_personal_data': encrypted_personal_data,
             'token_hash': None,
             'expiresIn': None
         })
@@ -76,5 +76,4 @@ class RegistrationHandler(BaseHandler):
         self.set_status(200)
         self.response['email'] = email
         self.response['displayName'] = display_name
-        # self.response
         self.write_json()
