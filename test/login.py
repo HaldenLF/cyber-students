@@ -16,9 +16,11 @@ class LoginHandlerTest(BaseTest):
         super().setUpClass()
 
     async def register(self):
+        # Added salt and hashing
         salt = os.urandom(32)
         password_hash = hash_passphrase(self.password, salt)
-        
+
+        # Updated info to include rest of required data for database
         await self.get_app().db.users.insert_one({
             'email': self.email,
             'password_hash': password_hash,
