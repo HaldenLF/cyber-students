@@ -1,7 +1,11 @@
+# I was looking at both GCM and CTR for encryption at first, ultimatley went with CTR as it was one we used in practicals.
+# Fazzani, H. (2024). Understanding AES Encryption Modes: AES-GCM, AES-CBC, AES-CTR. Available at https://www.haikel-fazzani.eu.org/blog/post/aes-encryption-modes-gcm-cbc-ctr
 
-# https://www.haikel-fazzani.eu.org/blog/post/aes-encryption-modes-gcm-cbc-ctr
+# Found multiple different opinions on UUIDs being secure or not depending on version. Decided to err on the safe side and used secrets package.
+# Goel, M. (2023). UUID Security Guide: Are UUIDs Safe as Public IDS. Availavle at https://theproductguy.in/blogs/uuid-security-guide/
 
-# https://github.com/philipn/python-keyring-lib/tree/master
+# Used for understanding keyring pacakage
+# philipn. (n.d.). Python Keyring Lib. Available at https://github.com/philipn/python-keyring-lib/tree/master
 
 import os
 import keyring
