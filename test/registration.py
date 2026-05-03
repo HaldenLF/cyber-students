@@ -96,7 +96,7 @@ class RegistrationHandlerTest(BaseTest):
         response_2 = self.fetch('/registration', method='POST', body=dumps(body))
         self.assertEqual(409, response_2.code)
 
-
+    # Check to see registration with new additional info is successful
     def test_registration_with_extra_info(self):
         body = {
           'email': 'test@test.com',
